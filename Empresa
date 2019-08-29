@@ -1,4 +1,4 @@
-
+CREATE TABLE Departamento(
     ID_Superv   NUMERIC(4)         NULL,
     ID_Depto    NUMERIC(2)     NOT NULL,
     CONSTRAINT pk_func PRIMARY KEY (ID_Func),
@@ -182,20 +182,28 @@ drop view empregado_departamento;
 
 /*F*/
 /*Pessoas que trabalham no mesmo projeto que Joao Silva*/
-create view trab_joao as select f.NomeFunc, p.NomeProj 
-from Funcionario f inner join Projeto p on f.ID_Func = p.ID_Proj 
-where p.NomeProj = f.NomeFunc and f.NomeFunc = 'Joao '; 
-
-select * from trab_joao;
-
-drop view trab_joao;
+create view trab_joao 
+select distinct f.NomeFunc from Funcionario f 
+inner join Trabalha t on t.ID_Func = f.ID_Func
+where f.NomeFunc != 'Joao Silva' and ID_Proj 
+in (select ID_Proj from Trabalha t
+inner join Funcionario f on t.ID_Func = f.ID_Func 
+where f.NomeFunc = 'Joao Silva');
 
 /*G*/
 /*Lista funcionarios com mais de 2 dependentes*/
 
-create view Nome_Funcionario as select f.NomeFunc ,count(d.NomeDep)
-from Funcionario f inner join Dependente d on f.ID_Func = d.ID_Dep 
-group by f.NomeFunc having(d.NomeDep) > 2 ; 
+create view Nome_Funcionario as 
+select f.NomeFunc, d.NomeDep from Funcionario f inner join Dependente d
+on f.ID_Func = d.ID_Func;
+
+select f.ID_Func
+from Funcionario f 
+inner join Dependente d 
+on f.ID_Func = d.ID_Func 
+group by f.ID_Func 
+having COUNT(f.ID_Func) > 2
+order by COUNT(f.ID_Func) desc;
 
 select * from Nome_Funcionario;
 
@@ -204,14 +212,28 @@ drop view Nome_Funcionario;
 
 /*H*/
 /*Soma, Média, Maior e menor salário dos que trabalham na Pesquisa*/
+/*Media aritimética de um conjunto de valores*/
 
-/*
-create view soma as select f.Salario, d.NomeDepto
-from Funcionario f inner join Departamento d on f.ID_Func = d.ID_Depto
-where d.NomeDepto = 'Pesquisa';
+create view soma 
+SELECT SUM(f.Salario) AS 'Total de Salarios',
+MAX(salario) AS 'Maior Salario',
+MIN(salario) AS 'Menor Salario',
+AVG(salario) AS 'Media dos Salarios'
+FROM Funcionario f 
+inner join Departamento d
+on (f.ID_Depto = d.ID_Depto)
+where d.NomeDepto like 'Pesquisa';
 
 select * from soma;
 
 drop view soma;
 
-falta fazer a soma, média e maior e menor salário*/ 
+/*I*/
+create view supervisor as select f.NomeFunc, d.NomeSup 
+from Funcionario f 
+inner join Departamento d
+on f.ID_Depto = d.ID_Depto
+having COUNT() 
+
+
+
