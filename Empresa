@@ -1,18 +1,4 @@
-CREATE TABLE Departamento (
-    ID_Depto    NUMERIC(2)      NOT NULL,
-    NomeDepto   VARCHAR(30)   NOT NULL,
-    ID_Gerente  NUMERIC(4)      NOT NULL,
-    CONSTRAINT pk_depto PRIMARY KEY (ID_Depto),
-    CONSTRAINT uk_nome UNIQUE (NomeDepto)
-);
 
-CREATE TABLE Funcionario (
-    ID_Func     NUMERIC(4)     NOT NULL,
-    NomeFunc    VARCHAR(30)  NOT NULL,
-    Endereco    VARCHAR(50)  NOT NULL,
-    DataNasc    DATE          NOT NULL,
-    Sexo        CHAR(1)       NOT NULL,
-    Salario     NUMERIC(8,2)   NOT NULL,
     ID_Superv   NUMERIC(4)         NULL,
     ID_Depto    NUMERIC(2)     NOT NULL,
     CONSTRAINT pk_func PRIMARY KEY (ID_Func),
@@ -207,15 +193,14 @@ drop view trab_joao;
 /*G*/
 /*Lista funcionarios com mais de 2 dependentes*/
 
-/*
-create view Nome_Funcionario as select f.NomeFunc, d.NomeDep 
+create view Nome_Funcionario as select f.NomeFunc ,count(d.NomeDep)
 from Funcionario f inner join Dependente d on f.ID_Func = d.ID_Dep 
-where d.NomeDep > ; 
+group by f.NomeFunc having(d.NomeDep) > 2 ; 
 
 select * from Nome_Funcionario;
 
 drop view Nome_Funcionario;
-*/
+
 
 /*H*/
 /*Soma, Média, Maior e menor salário dos que trabalham na Pesquisa*/
@@ -230,18 +215,3 @@ select * from soma;
 drop view soma;
 
 falta fazer a soma, média e maior e menor salário*/ 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
