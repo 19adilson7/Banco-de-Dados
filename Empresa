@@ -229,10 +229,10 @@ select * from soma;
 drop view soma;
 
 /*I*/
-create view supervisor as select f.NomeFunc, d.NomeSup 
+create view supervisor as select f.NomeFunc s.Superv 
 from Funcionario f 
-inner join Departamento d
-on f.ID_Depto = d.ID_Depto
+inner join Funcionaro s
+on f.ID_Func = s.ID_Superv
 having COUNT() 
 
 
