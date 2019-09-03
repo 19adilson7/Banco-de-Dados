@@ -253,12 +253,11 @@ drop view soma;
 
 /*I*/
 /*Quantidade de supervisionado que tem para um supervisor*/
-create view superv as select f.NomeFunc, s.ID_Superv 
+create view superv as select f.NomeFunc, COUNT(s.ID_Superv)
 from Funcionario f 
 inner join Funcionario s
 on s.ID_Superv = f.ID_Func
-having COUNT(f.NomeFunc);
-;
+group by f.NomeFunc;
 
 
 select * from superv;
@@ -267,21 +266,12 @@ drop view superv;
 
 /*J*/
 /*Listando o nome de projeto com a quantidade de empregado trabalhando*/
-create view trabalhando as select p.NomeProj, f.NomeFunc
+create view trabalhando as select p.NomeProj, COUNT(f.NomeFunc)
 from Projeto p inner join Funcionario f
 on p.ID_Proj = f.ID_Func
-having COUNT(f);
+group by p.NomeProj ;
 
 select * from trabalhando ;
-
-
-
-
-
-
-
-
-
 
 
 
