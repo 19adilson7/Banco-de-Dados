@@ -5,6 +5,19 @@ CREATE TABLE Departamento(
     CONSTRAINT ck_sexo CHECK (Sexo='M' or Sexo='F')
 );
 
+CREATE TABLE Funcionario (
+    ID_Func     NUMERIC(4)     NOT NULL,
+    NomeFunc    VARCHAR(30)  NOT NULL,
+    Endereco    VARCHAR(50)  NOT NULL,
+    DataNasc    DATE          NOT NULL,
+    Sexo        CHAR(1)       NOT NULL,
+    Salario     NUMERIC(8,2)   NOT NULL,
+    ID_Superv   NUMERIC(4)         NULL,
+    ID_Depto    NUMERIC(2)     NOT NULL,
+    CONSTRAINT pk_func PRIMARY KEY (ID_Func),
+    CONSTRAINT ck_sexo CHECK (Sexo='M' or Sexo='F')
+);
+
 CREATE TABLE Projeto (
     ID_Proj       NUMERIC(4)     NOT NULL,
     NomeProj      VARCHAR(30)  NOT NULL,
