@@ -1,8 +1,9 @@
-CREATE TABLE Departamento(
-    ID_Superv   NUMERIC(4)         NULL,
-    ID_Depto    NUMERIC(2)     NOT NULL,
-    CONSTRAINT pk_func PRIMARY KEY (ID_Func),
-    CONSTRAINT ck_sexo CHECK (Sexo='M' or Sexo='F')
+CREATE TABLE Departamento (
+    ID_Depto    NUMERIC(2)      NOT NULL,
+    NomeDepto   VARCHAR(30)   NOT NULL,
+    ID_Gerente  NUMERIC(4)      NOT NULL,
+    CONSTRAINT pk_depto PRIMARY KEY (ID_Depto),
+    CONSTRAINT uk_nome UNIQUE (NomeDepto)
 );
 
 CREATE TABLE Funcionario (
@@ -196,12 +197,17 @@ drop view empregado_departamento;
 /*F*/
 /*Pessoas que trabalham no mesmo projeto que Joao Silva*/
 create view trab_joao 
-select distinct f.NomeFunc from Funcionario f 
+/*Listagem de valores diferente*/
+as select distinct f.NomeFunc from Funcionario f 
 inner join Trabalha t on t.ID_Func = f.ID_Func
 where f.NomeFunc != 'Joao Silva' and ID_Proj 
 in (select ID_Proj from Trabalha t
 inner join Funcionario f on t.ID_Func = f.ID_Func 
 where f.NomeFunc = 'Joao Silva');
+
+select * from trab_joao;
+
+drop view trab_joao;
 
 /*G*/
 /*Lista funcionarios com mais de 2 dependentes*/
@@ -210,12 +216,16 @@ create view Nome_Funcionario as
 select f.NomeFunc, d.NomeDep from Funcionario f inner join Dependente d
 on f.ID_Func = d.ID_Func;
 
+
 select f.ID_Func
 from Funcionario f 
 inner join Dependente d 
 on f.ID_Func = d.ID_Func 
+/*GROUP BY é agrupamentos de resultados*/
 group by f.ID_Func 
-having COUNT(f.ID_Func) > 2
+/*HAVING exibe apenas */
+having COUNT(f.ID_Func) > 2 
+/*ORDER by deixa a tabela na ordem / COUNT retorna o numero de dados da tabela*/
 order by COUNT(f.ID_Func) desc;
 
 select * from Nome_Funcionario;
@@ -242,11 +252,41 @@ select * from soma;
 drop view soma;
 
 /*I*/
-create view supervisor as select f.NomeFunc s.Superv 
+/*Quantidade de supervisionado que tem para um supervisor*/
+create view superv as select f.NomeFunc, s.ID_Superv 
 from Funcionario f 
-inner join Funcionaro s
-on f.ID_Func = s.ID_Superv
-having COUNT() 
+inner join Funcionario s
+on s.ID_Superv = f.ID_Func
+having COUNT(f.NomeFunc);
+;
+
+
+select * from superv;
+
+drop view superv;
+
+/*J*/
+/*Listando o nome de projeto com a quantidade de empregado trabalhando*/
+create view trabalhando as select p.NomeProj, f.NomeFunc
+from Projeto p inner join Funcionario f
+on p.ID_Proj = f.ID_Func
+having COUNT(f);
+
+select * from trabalhando ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
