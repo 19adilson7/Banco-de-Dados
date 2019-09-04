@@ -152,30 +152,41 @@ ADD CONSTRAINT fk_trab_proj FOREIGN KEY (ID_Proj) REFERENCES Projeto (ID_Proj) O
 
 /*A*/
 /*Mostrando o nome e endereço do funcionario que trabalha na área de pesquisa*/
-create view Departamento_Funcionario as select Funcionario.NomeFunc, Funcionario.Endereco
-from Departamento inner join Funcionario on Departamento.ID_Depto = Funcionario.ID_Depto where Departamento.NomeDepto = 'Pesquisa';
+create view Departamento_Funcionario 
+as select Funcionario.NomeFunc, Funcionario.Endereco
+from Departamento inner join Funcionario 
+on Departamento.ID_Depto = Funcionario.ID_Depto 
+where Departamento.NomeDepto = 'Pesquisa';
 
 
 select * from Departamento_Funcionario
 
 /*B*/
 /*Cada funcionario com seu supervisor*/
-create view Funcionario_Supervisor as select f.NomeFunc, s.ID_Superv 
-from Funcionario f inner join Funcionario s on s.ID_Superv = f.ID_Func;
+create view Funcionario_Supervisor 
+as select f.NomeFunc, s.NomeFunc
+from Funcionario f inner join Funcionario s 
+on s.ID_Superv = f.ID_Func;
 
 select * from Funcionario_Supervisor
 
 /*C*/
 /*Mostrar salario, nome e endereço dos funcionario que moram em Irai e tenha salarios diferentes*/
-create view Funcionario_Sal as select f.Salario, f.NomeFunc, m.Endereco 
-from Funcionario f inner join Funcionario m on f.ID_Func = m.ID_Func where m.Endereco = 'Irai' and f.Salario != f.Salario;
+create view Funcionario_Sal 
+as select f.Salario, f.NomeFunc, m.Endereco 
+from Funcionario f inner join Funcionario m 
+on f.ID_Func = m.ID_Func 
+where m.Endereco = 'Irai' and f.Salario != f.Salario;
 
 select * from Funcionario_Sal
 
 /*D*/
 /*Aumento de 10% no salario do funcionario que trabalha no projeto ProdX*/
-create view Salario_Empregado as select (f.Salario + 0.10* f.Salario)
-from Funcionario f inner join Departamento d on f.ID_Func = d.ID_Depto inner join Projeto p on p.ID_Depto = d.ID_Depto where p.NomeProj = 'ProdX';
+create view Salario_Empregado 
+as select (f.Salario + 0.10* f.Salario)
+from Funcionario f inner join Departamento d 
+on f.ID_Func = d.ID_Depto 
+inner join Projeto p on p.ID_Depto = d.ID_Depto where p.NomeProj = 'ProdX';
 
 
  
@@ -186,8 +197,13 @@ drop view Salario_Empregado;
 /*E*/
 /*Listando o nome de empregrados, de seus departamento e dos projetos. Ordenando cada um */
 
-create view empregado_departamento as select f.NomeFunc, d.NomeDepto, p.NomeProj
-from Funcionario f inner join Departamento d on f.ID_Func = d.ID_Depto inner join Projeto p on p.ID_Depto = d.ID_Depto 
+create view empregado_departamento 
+as select f.NomeFunc, d.NomeDepto, p.NomeProj
+from Funcionario f 
+inner join Departamento d 
+on f.ID_Func = d.ID_Depto
+ inner join Projeto p 
+ on p.ID_Depto = d.ID_Depto 
 order by d.NomeDepto, p.NomeProj; 
 
 select * from empregado_departamento; 
@@ -198,8 +214,10 @@ drop view empregado_departamento;
 /*Pessoas que trabalham no mesmo projeto que Joao Silva*/
 create view trab_joao 
 /*Listagem de valores diferente*/
-as select distinct f.NomeFunc from Funcionario f 
-inner join Trabalha t on t.ID_Func = f.ID_Func
+as select distinct f.NomeFunc 
+from Funcionario f 
+inner join Trabalha t 
+on t.ID_Func = f.ID_Func
 where f.NomeFunc != 'Joao Silva' and ID_Proj 
 in (select ID_Proj from Trabalha t
 inner join Funcionario f on t.ID_Func = f.ID_Func 
@@ -213,11 +231,7 @@ drop view trab_joao;
 /*Lista funcionarios com mais de 2 dependentes*/
 
 create view Nome_Funcionario as 
-select f.NomeFunc, d.NomeDep from Funcionario f inner join Dependente d
-on f.ID_Func = d.ID_Func;
-
-
-select f.ID_Func
+select f.NomeFunc, f.ID_Func
 from Funcionario f 
 inner join Dependente d 
 on f.ID_Func = d.ID_Func 
@@ -238,10 +252,11 @@ drop view Nome_Funcionario;
 /*Media aritimética de um conjunto de valores*/
 
 create view soma 
-SELECT SUM(f.Salario) AS 'Total de Salarios',
-MAX(salario) AS 'Maior Salario',
-MIN(salario) AS 'Menor Salario',
-AVG(salario) AS 'Media dos Salarios'
+as SELECT 
+SUM(f.Salario) AS /*Total de Salarios*/
+MAX(salario) AS /*Maior Salario*/
+MIN(salario) AS /*Menor Salario*/
+AVG(salario) AS /*Media dos Salarios'*/
 FROM Funcionario f 
 inner join Departamento d
 on (f.ID_Depto = d.ID_Depto)
@@ -260,8 +275,6 @@ on s.ID_Superv = f.ID_Func
 group by f.NomeFunc;
 
 
-select * from superv;
-
 drop view superv;
 
 /*J*/
@@ -271,7 +284,16 @@ from Projeto p inner join Funcionario f
 on p.ID_Proj = f.ID_Func
 group by p.NomeProj ;
 
-select * from trabalhando ;
+
+
+
+
+
+
+
+
+
+
 
 
 
