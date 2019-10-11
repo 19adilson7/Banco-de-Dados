@@ -1,0 +1,33 @@
+/*Número 7*/
+/*Não repitivel, quando uma transação lê a mesma linhda 2x, mas obtém valores diferentes a cada vez*/
+/*Nivel READ COMMITTED*/
+begin
+set transaction isolation level read committed;
+select j.Nome, j.RG, e.Nome 
+from Equipe e 
+inner join Jogador j on j.IdEquipe = e.IdEquipe
+where j.RG = 111111111;
+commit;
+
+/*Nivel REPEATABLE READ*/
+begin 
+set transaction isolation level repeatable read;
+select j.Nome, j.RG, e.Nome 
+from Equipe e 
+inner join Jogador j on j.IdEquipe = e.IdEquipe
+where j.RG = 111111111;
+commit;
+
+/*OUTRA QUERY*/
+begin
+set transaction isolation level read committed;
+
+update Jogador set Nome = 'Joao' where RG = 111111111;
+
+commit;
+
+begin 
+set transaction isolation level repeatable read;
+
+update Jogador set Nome = 'Boaz' where RG = 111111111;
+commit;
