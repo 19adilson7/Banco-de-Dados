@@ -55,9 +55,9 @@ VALUES (3,'Alice Pereira','R. Curitiba, 11','15/05/70','F',700,4,3);
 INSERT INTO Funcionario
 VALUES (4,'Junia Mendes','R. Espirito Santos, 123','06/07/76','F',1200,8,3);
 INSERT INTO Funcionario
-VALUES (5,'Jose Tavares','Irai', '153','07/10/75','M',1500,2,1);
+VALUES (5,'Jose Tavares','R. Irai, 153','07/10/75','M',1500,2,1);
 INSERT INTO Funcionario
-VALUES (6,'Luciana Santos','Irai', '175','07/10/60','F',600,2,1);
+VALUES (6,'Luciana Santos','R. Irai, 175','07/10/60','F',600,2,1);
 INSERT INTO Funcionario
 VALUES (7,'Maria Ramos','R. C. Linhares, 10','01/11/65','F',1000,4,3);
 INSERT INTO Funcionario
@@ -150,155 +150,115 @@ ADD CONSTRAINT fk_trab_func FOREIGN KEY (ID_Func) REFERENCES Funcionario (ID_Fun
 ALTER TABLE Trabalha
 ADD CONSTRAINT fk_trab_proj FOREIGN KEY (ID_Proj) REFERENCES Projeto (ID_Proj) ON DELETE CASCADE;
 
+
 /*A*/
 /*Mostrando o nome e endereço do funcionario que trabalha na área de pesquisa*/
-create view Departamento_Funcionario 
-as select Funcionario.NomeFunc, Funcionario.Endereco
-from Departamento inner join Funcionario 
-on Departamento.ID_Depto = Funcionario.ID_Depto 
-where Departamento.NomeDepto = 'Pesquisa';
 
+create view nomeEndereco as select f.NomeFunc, f.Endereco from Funcionario f
+join Departamento d
+on f.ID_Depto = d.ID_Depto
+where d.NomeDepto = 'Pesquisa';
 
-select * from Departamento_Funcionario
+select * from nomeEndereco;
+
 
 /*B*/
 /*Cada funcionario com seu supervisor*/
-create view Funcionario_Supervisor 
-as select f.NomeFunc, s.NomeFunc
-from Funcionario f inner join Funcionario s 
-on s.ID_Superv = f.ID_Func;
 
-select * from Funcionario_Supervisor
+create view nomeSupervisor as select e.NomeFunc, s.NomeFunc as "Nome_Supervisor" from Funcionario e
+join Funcionario s
+on s.ID_Func = e.ID_Superv;
+
+select * from nomeSupervisor;
 
 /*C*/
 /*Mostrar salario, nome e endereço dos funcionario que moram em Irai e tenha salarios diferentes*/
-create view Funcionario_Sal 
-as select f.Salario, f.NomeFunc, m.Endereco 
-from Funcionario f inner join Funcionario m 
-on f.ID_Func = m.ID_Func 
-where m.Endereco = 'Irai' and f.Salario != f.Salario;
 
-select * from Funcionario_Sal
+create view Msalario as select f.Salario from Funcionario f where f.Endereco like '%Irai%';
+
+select * from Msalario;
 
 /*D*/
 /*Aumento de 10% no salario do funcionario que trabalha no projeto ProdX*/
-create view Salario_Empregado 
-as select (f.Salario + 0.10* f.Salario)
-from Funcionario f inner join Departamento d 
-on f.ID_Func = d.ID_Depto 
-inner join Projeto p on p.ID_Depto = d.ID_Depto where p.NomeProj = 'ProdX';
+
+create view aumento as select (f.Salario + 0.10*f.Salario) from Trabalha t
+join Funcionario f
+on t.ID_Func = f.ID_Func
+join Projeto p
+on t.ID_Proj = p.ID_Proj
+where p.NomeProj = 'ProdX';
 
 
- 
-select * from Salario_Empregado
 
-drop view Salario_Empregado;
+select * from aumento;
 
 /*E*/
 /*Listando o nome de empregrados, de seus departamento e dos projetos. Ordenando cada um */
 
-create view empregado_departamento 
-as select f.NomeFunc, d.NomeDepto, p.NomeProj
-from Funcionario f 
-inner join Departamento d 
-on f.ID_Func = d.ID_Depto
- inner join Projeto p 
- on p.ID_Depto = d.ID_Depto 
-order by d.NomeDepto, p.NomeProj; 
+create view empregados as select f.NomeFunc, d.NomeDepto, p.NomeProj from Trabalha t
+join Funcionario f
+on t.ID_Func = f.ID_Func
+join Projeto p
+on t.ID_Proj = p.ID_Proj
+join Departamento d
+on f.ID_Depto = d.ID_Depto
+order by f.NomeFunc,d.NomeDepto,p.NomeProj;
 
-select * from empregado_departamento; 
+select * from empregados;
 
-drop view empregado_departamento; 
+
 
 /*F*/
 /*Pessoas que trabalham no mesmo projeto que Joao Silva*/
-create view trab_joao 
-/*Listagem de valores diferente*/
-as select distinct f.NomeFunc 
-from Funcionario f 
-inner join Trabalha t 
-on t.ID_Func = f.ID_Func
-where f.NomeFunc != 'Joao Silva' and ID_Proj 
-in (select ID_Proj from Trabalha t
-inner join Funcionario f on t.ID_Func = f.ID_Func 
-where f.NomeFunc = 'Joao Silva');
 
-select * from trab_joao;
+create view Nprojetos as select distinct f.NomeFunc from Funcionario f
+join Trabalha t
+on f.ID_Func = t.ID_Func
+where f.NomeFunc != 'Joao Silva' and t.ID_Proj in(select t.ID_Proj from Funcionario f join Trabalha t on f.ID_Func = t.ID_Func where f.NomeFunc = 'Joao Silva');
 
-drop view trab_joao;
+select * from Nprojetos;
+       
 
 /*G*/
 /*Lista funcionarios com mais de 2 dependentes*/
 
-create view Nome_Funcionario as 
-select f.NomeFunc, f.ID_Func
-from Funcionario f 
-inner join Dependente d 
-on f.ID_Func = d.ID_Func 
-/*GROUP BY é agrupamentos de resultados*/
-group by f.ID_Func 
-/*HAVING exibe apenas */
-having COUNT(f.ID_Func) > 2 
-/*ORDER by deixa a tabela na ordem / COUNT retorna o numero de dados da tabela*/
-order by COUNT(f.ID_Func) desc;
+create view funcionarioDependente as select f.NomeFunc, d.NomeDep from Funcionario f
+join Dependente d
+on f.ID_Func = d.ID_Func
+where d.ID_Func in (select ID_Func from Dependente group by(ID_Func) having count(ID_Func)>2);
 
-select * from Nome_Funcionario;
 
-drop view Nome_Funcionario;
-
+select * from funcionarioDependente;
 
 /*H*/
 /*Soma, Média, Maior e menor salário dos que trabalham na Pesquisa*/
-/*Media aritimética de um conjunto de valores*/
 
-create view soma 
-as SELECT 
-SUM(f.Salario) AS /*Total de Salarios*/
-MAX(salario) AS /*Maior Salario*/
-MIN(salario) AS /*Menor Salario*/
-AVG(salario) AS /*Media dos Salarios'*/
-FROM Funcionario f 
-inner join Departamento d
-on (f.ID_Depto = d.ID_Depto)
-where d.NomeDepto like 'Pesquisa';
+create view CalcSalarios as select sum(f.salario) as "Soma", avg(f.salario) as "Media", max(f.salario) as "Maximo", min(f.salario) as "Minimo" from Funcionario f
+join Departamento d
+on f.ID_Depto = d.ID_Depto
+where d.NomeDepto = 'Pesquisa';
 
-select * from soma;
 
-drop view soma;
+select * from CalcSalarios;
+
 
 /*I*/
 /*Quantidade de supervisionado que tem para um supervisor*/
-create view superv as select f.NomeFunc, COUNT(s.ID_Superv)
-from Funcionario f 
-inner join Funcionario s
-on s.ID_Superv = f.ID_Func
-group by f.NomeFunc;
 
+create view supervisionados as select s.NomeFunc as "Supervisor", count(f.ID_Superv) as "Supervisionados" from Funcionario s
+join Funcionario f
+on s.ID_Func = f.ID_Superv
+group by(s.NomeFunc);
 
-drop view superv;
+select * from supervisionados;
+
 
 /*J*/
 /*Listando o nome de projeto com a quantidade de empregado trabalhando*/
-create view trabalhando as select p.NomeProj, COUNT(f.NomeFunc)
-from Projeto p inner join Funcionario f
-on p.ID_Proj = f.ID_Func
-group by p.NomeProj ;
 
+create view empregadosProjeto as select p.NomeProj as "Projeto", count(t.ID_Proj) as "Empregados" from Trabalha t
+join Projeto p
+on p.ID_Proj = t.ID_Proj
+group by(p.NomeProj);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+select * from empregadosProjeto;
